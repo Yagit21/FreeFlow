@@ -6,35 +6,35 @@ pose = mp_pose.Pose()
 
 cap = cv2.VideoCapture(0)
 
-while True:
 
-    success, frame = cap.read()
+# while True:
 
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#     success, frame = cap.read()
 
-    results = pose.process(rgb)
+#     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    if results.pose_landmarks:
+#     results = pose.process(rgb)
+
+#     if results.pose_landmarks:
         
-        for i, landmark in enumerate(results.pose_landmarks.landmark):
+#         for i, landmark in enumerate(results.pose_landmarks.landmark):
 
-            print(
-                i,
-                landmark.x,
-                landmark.y,
-                landmark.z,
-                landmark.visibility
-            )
+#             print(i,
+#                 landmark.x,
+#                 landmark.y,
+#                 landmark.z,
+#                 landmark.visibility
+#             )
 
-        mp.solutions.drawing_utils.draw_landmarks(
-            frame,
-            results.pose_landmarks,
-            mp_pose.POSE_CONNECTIONS
-        )
+#         mp.solutions.drawing_utils.draw_landmarks(
+#             frame,
+#             results.pose_landmarks,
+#             mp_pose.POSE_CONNECTIONS
+#         )
 
-    cv2.imshow("Pose", frame)
+#     cv2.imshow("Pose", frame)
 
-    if cv2.waitKey(1) == ord("q"):
-        break
+#     if cv2.waitKey(1) == ord("q"):
+#         break
 
-cap.release()
+# cap.release()
