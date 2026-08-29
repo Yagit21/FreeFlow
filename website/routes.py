@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+from .models import User, Project, Character, Recording
+import uuid
+from . import db
 import os
 
 routes = Blueprint("routes", __name__)
@@ -10,11 +13,19 @@ def index():
 
 @routes.route("/webcam")
 def webcam():
+    
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+        
     return render_template("webcam.html")
 
 
 @routes.route("/upload-recording", methods=["POST"])
 def upload_recording():
+    
+    #Check that user is logged in
+    if "user_id" not in session:
+        return jsonify({"message": "You must be logged in."}), 401
     
     #Looking for a file named video is not returning an error message
     if "video" not in request.files:
@@ -22,6 +33,17 @@ def upload_recording():
     
     #Getting the video file 
     video = request.files["video"]
+
+    #Geting the logged-in user
+    user_id = session["user_id"]
+
+
+    #Getting the active project
+    project_id = session.get("project_id")
+
+
+    if not project_id:
+        return jsonify({"message": "No active project."}), 400
     
     #Saving the video file into this path 
     os.makedirs("data/videos", exist_ok=True)
@@ -30,3 +52,32 @@ def upload_recording():
     
     #Returning a success message
     return jsonify({"message": "Recording successfully uploaded."})
+
+@routes.route("/create-project", methods=["POST"])
+def create_project():
+
+    #Check that user is logged in
+    if "user_id" not in session:
+        return jsonify({"message": "Please log in first."}), 401
+
+    #Getting user's info
+    user_id = session["user_id"]
+    data = request.get_json()
+    project_name = data.get("project_name")
+    character_id = data.get("character_id")
+
+
+    #Create project
+    project = Project(user_id=user_id, character_id=character_id, project_name=project_name, status="Recording")
+
+    db.session.add(project)
+    db.session.commit()
+
+    #Store currently active project
+    session["project_id"] = project.id
+
+
+    return jsonify({
+        "message": "Project created successfully.",
+        "project_id": project.id
+    })
