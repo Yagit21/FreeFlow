@@ -5,6 +5,14 @@
 <h1>Create Account</h1>
 
 <form method="POST">
+    <!--Displaying flash messages-->
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            {% for message in messages%}
+                <a>{{message}}</a>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
     <label>Username</label>
 
