@@ -44,14 +44,31 @@ def upload_recording():
 
     if not project_id:
         return jsonify({"message": "No active project."}), 400
-    
-    #Saving the video file into this path 
-    os.makedirs("data/videos", exist_ok=True)
-    filepath = os.path.join("data/videos", "recording.webm")
+
+    #Create unique ID for filename
+    unique_id = uuid.uuid4()
+    #Naming the path with the unique ID
+    filename = "recording_%s.webm" % (unique_id)
+
+    #Creating a folder path for the user
+    folder_path = os.path.join("data", "videos", "user_%s" % (user_id), "project_%s" % (project_id))
+    os.makedirs(folder_path, exist_ok=True)
+    #Complete the video file path
+    filepath = os.path.join(folder_path, filename)
+
+    #Save actual video
     video.save(filepath)
-    
+
+
+    #Creating the db record
+    recording = Recording(project_id=project_id, video_path=filepath)
+
+    #Saving the video file to the db
+    db.session.add(recording)
+    db.session.commit()
+
     #Returning a success message
-    return jsonify({"message": "Recording successfully uploaded."})
+    return jsonify({"message": "Recording successfully uploaded.", "recording_id": recording.id, "video_path": filepath})
 
 @routes.route("/create-project", methods=["POST"])
 def create_project():
