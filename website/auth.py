@@ -89,17 +89,22 @@ def login():
 
 
 
-@auth.route("/account", methods=["POST"])
+@auth.route("/account", methods=["GET", "POST"])
 def account():
-    
+
+    #Make sure the user is logged in
+    if "user_id" not in session:
+        flash("Please log in first.")
+        return redirect(url_for("auth.login"))
+
     user_id = session["user_id"]
     username = session["username"]
-    
-    #Logging out the user when the logout button is pressed
+
+    #If the logout button was pressed
     if request.method == "POST":
-            session.clear()
-            return redirect(url_for("routes.index"))
-    
-    flash("You have been logged out.")
-    
-    return render_template("account.html", user_id, username)
+        session.clear()
+        flash("You have been logged out.")
+        return redirect(url_for("routes.index"))
+
+    #Otherwise, display the account page
+    return render_template("account.html", user_id=user_id, username=username)

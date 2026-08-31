@@ -10,9 +10,9 @@
 
 <nav>
 
-<a href="/">Home</a>
+<a href="{{ url_for('routes.index') }}">Home</a>
 
-<a href="/webcam">Webcam</a>
+<a href="{{ url_for('routes.webcam') }}">Webcam</a>
 
 <a href="{{ url_for('auth.account') }}">Account</a>
 
