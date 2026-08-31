@@ -20,16 +20,23 @@ document.addEventListener("DOMContentLoaded", () => {
     startButton.addEventListener("click", async () => {
 
         try {
-            //Requesting to access the user's webcam without access to audio
+            //Requesting to access the user's webcam without access to audio (requesting a nice resolution and framerate)
             stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: false
-            });
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30, max: 30 }
+                    },
+                    audio: false
+                });
             //Getting the live webcam into a into a video HTML element 
             video.srcObject = stream;
             //Enabling the record button only after the user's camera is connected
             recordButton.disabled = false;
             statusText.textContent = "Camera connected."; 
+    
+        //Checking actucal camera resolution
+        console.log("Camera resolution:", video.videoWidth, "x", video.videoHeight);
 
         } catch (error) {
             //If user's camera does not connect successfully 
@@ -44,8 +51,32 @@ document.addEventListener("DOMContentLoaded", () => {
     recordButton.addEventListener("click", () => {
         //Reseting the data entry so that old recordings are not influencing new ones
         recordedChunks = [];
+
+        const mimeTypes = [
+            "video/webm;codecs=vp9",
+            "video/webm;codecs=vp8",
+            "video/webm"
+        ];
+
+        let mimeType = "";
+
+        for (const type of mimeTypes) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                mimeType = type;
+                break;
+            }
+        }
+
+        const recorderOptions = {
+            videoBitsPerSecond: 2_500_000
+        };
+
+        if (mimeType) {
+            recorderOptions.mimeType = mimeType;
+        }
+
         //Creating a MediaRecorder instance of the stream
-        recorder = new MediaRecorder(stream);
+        recorder = new MediaRecorder(stream, recorderOptions);
         //The event listener to record new data
         recorder.ondataavailable = (event) => {
             //Checking if the data is not empty
@@ -54,20 +85,43 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
 
-        //Running this event once the recording stops
-        recorder.onstop = () => {
-            //Combining all data into one single webm file
-            const blob = new Blob(
-                recordedChunks,
-                { type: "video/webm" }
-            );
+    recorder.onerror = (event) => {
+
+        console.error(
+            "Recording error:",
+            event.error
+        );
+
+        statusText.textContent =
+            "Recording error.";
+
+    };
+
+    //Running this event once the recording stops
+    recorder.onstop = () => {
+
+        const actualMimeType =
+            recorder.mimeType || "video/webm";
+
+        const blob = new Blob(
+            recordedChunks,
+            {
+                type: actualMimeType
+            }
+        );
+
+        console.log(
+            "Recording size:",
+            blob.size,
+            "bytes"
+        );
             //Sending the file into the uploadRecording function
             uploadRecording(blob);
 
         };
 
         //Starting the recording
-        recorder.start();
+        recorder.start(1000);
         //Disabling the record button and enabling the stop button so the user does not click the wrong button
         recordButton.disabled = true;
         stopButton.disabled = false;
