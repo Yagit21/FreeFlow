@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1> Account </h1> 
+
+<h2> Welcome {{username}}!</h2> 
+<a> Here you can check all your account details including your projects and setting details</a>
+
+<form method="POST">
+    <h2>Logout</h2>
+        <a>Click the button below to logout of your account.</a>
+        <button type="submit">
+            Logout 
+        </button>
+
+{% endblock %}

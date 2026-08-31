@@ -88,12 +88,18 @@ def login():
     return render_template("login.html")
 
 
-@auth.route("/logout")
-def logout():
 
-    session.pop("user_id", None)
-    session.pop("username", None)
-
+@auth.route("/account", methods=["POST"])
+def account():
+    
+    user_id = session["user_id"]
+    username = session["username"]
+    
+    #Logging out the user when the logout button is pressed
+    if request.method == "POST":
+            session.clear()
+            return redirect(url_for("routes.index"))
+    
     flash("You have been logged out.")
-
-    return redirect(url_for("routes.index"))
+    
+    return render_template("account.html", user_id, username)

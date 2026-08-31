@@ -98,3 +98,4 @@ def create_project():
         "message": "Project created successfully.",
         "project_id": project.id
     })
+    
