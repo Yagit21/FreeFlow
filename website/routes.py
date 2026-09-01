@@ -51,17 +51,18 @@ def upload_recording():
     filename = "recording_%s.webm" % (unique_id)
 
     #Creating a folder path for the user
-    folder_path = os.path.abspath("data", "videos", "user_%s" % (user_id))
+    folder_path = os.path.join("data", "videos", "user_%s" % (user_id))
     os.makedirs(folder_path, exist_ok=True)
     #Complete the video file path
-    filepath = os.path.abspath(folder_path, filename)
+    relative_filepath = os.path.join(folder_path, filename)
+    absolute_video_path = os.path.abspath(relative_filepath)
 
     #Save actual video
-    video.save(filepath)
+    video.save(absolute_video_path)
 
 
     #Creating the db record
-    recording = Recording(project_id=1,video_path=filepath) #Have to add project details later (currently just testing)
+    recording = Recording(project_id=1,video_path=absolute_video_path) #Have to add project details later (currently just testing)
 
     #Saving the video file to the db
     db.session.add(recording)
