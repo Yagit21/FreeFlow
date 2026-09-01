@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     recordButton.addEventListener("click", () => {
         //Reseting the data entry so that old recordings are not influencing new ones
         recordedChunks = [];
-
+        //Standard web video formats
         const mimeTypes = [
             "video/webm;codecs=vp9",
             "video/webm;codecs=vp8",
@@ -59,14 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ];
 
         let mimeType = "";
-
+        //Loop through and stop at the firt one the user's computer supports
         for (const type of mimeTypes) {
             if (MediaRecorder.isTypeSupported(type)) {
                 mimeType = type;
                 break;
             }
         }
-
+        //Setting the recording bitrate to 2.5 Megabites per second
         const recorderOptions = {
             videoBitsPerSecond: 2_500_000
         };
@@ -84,13 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 recordedChunks.push(event.data); //Saving the data into the recordChuncks array
             }
         };
-
+    //Showing error messages
     recorder.onerror = (event) => {
 
-        console.error(
-            "Recording error:",
-            event.error
-        );
+        console.error("Recording error:", event.error);
 
         statusText.textContent =
             "Recording error.";
@@ -99,22 +96,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     //Running this event once the recording stops
     recorder.onstop = () => {
-
+        //Checking the format of the data if it doesn't have a format it defaults to video/webm
         const actualMimeType =
             recorder.mimeType || "video/webm";
-
+        //Combining all the small data pieces into one unified object
         const blob = new Blob(
             recordedChunks,
             {
                 type: actualMimeType
             }
         );
-
-        console.log(
-            "Recording size:",
-            blob.size,
-            "bytes"
-        );
+        //Total size of final recording in bytes
+        console.log("Recording size:", blob.size, "bytes");
             //Sending the file into the uploadRecording function
             uploadRecording(blob);
 
