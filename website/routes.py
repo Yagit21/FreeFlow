@@ -69,7 +69,7 @@ def upload_recording():
     db.session.commit()
 
     #Returning a success message
-    return jsonify({"message": "Recording successfully uploaded.", "recording_id": recording.id, "video_path": filepath})
+    return jsonify({"message": "Recording successfully uploaded.", "recording_id": recording.id, "video_path": absolute_video_path})
 
 @routes.route("/create-project", methods=["POST"])
 def create_project():
