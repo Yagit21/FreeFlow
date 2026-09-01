@@ -39,11 +39,11 @@ def upload_recording():
 
 
     #Getting the active project
-    project_id = session.get("project_id")
+    # project_id = session.get("project_id")
 
 
-    if not project_id:
-        return jsonify({"message": "No active project."}), 400
+    # if not project_id:
+    #     return jsonify({"message": "No active project."}), 400
 
     #Create unique ID for filename
     unique_id = uuid.uuid4()
@@ -51,7 +51,7 @@ def upload_recording():
     filename = "recording_%s.webm" % (unique_id)
 
     #Creating a folder path for the user
-    folder_path = os.path.join("data", "videos", "user_%s" % (user_id), "project_%s" % (project_id))
+    folder_path = os.path.join("data", "videos", "user_%s" % (user_id))
     os.makedirs(folder_path, exist_ok=True)
     #Complete the video file path
     filepath = os.path.join(folder_path, filename)
@@ -61,7 +61,7 @@ def upload_recording():
 
 
     #Creating the db record
-    recording = Recording(project_id=project_id, video_path=filepath)
+    recording = Recording(project_id=1,video_path=filepath) #Have to add project details later (currently just testing)
 
     #Saving the video file to the db
     db.session.add(recording)
@@ -76,7 +76,10 @@ def create_project():
     #Check that user is logged in
     if "user_id" not in session:
         return jsonify({"message": "Please log in first."}), 401
-
+    
+    data = request.get_json()
+    
+    
     #Getting user's info
     user_id = session["user_id"]
     data = request.get_json()
