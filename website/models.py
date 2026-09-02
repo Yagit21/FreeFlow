@@ -150,9 +150,21 @@ class Recording(db.Model):
         primary_key=True
     )
 
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
     project_id = db.Column(
         db.Integer,
         db.ForeignKey("projects.id"),
+        nullable=False
+    )
+
+    recording_uuid = db.Column(
+        db.String(36),
+        unique=True,
         nullable=False
     )
 

@@ -46,30 +46,35 @@ def upload_recording():
     #     return jsonify({"message": "No active project."}), 400
 
     #Create unique ID for filename
-    unique_id = uuid.uuid4()
+    unique_id = str(uuid.uuid4())
     #Naming the path with the unique ID
     filename = "recording_%s.webm" % (unique_id)
+    
+    #Get the Flask application's root directory
+    project_root = routes.root_path
+    
+    #Go up from the website folder to FreeFlow
+    project_root = os.path.dirname(project_root)
 
     #Creating a folder path for the user
-    folder_path = os.path.join("data", "videos", "user_%s" % (user_id))
+    folder_path = os.path.join(project_root, "data", "videos", "user_%s" % (user_id))
     os.makedirs(folder_path, exist_ok=True)
     #Complete the video file path
-    relative_filepath = os.path.join(folder_path, filename)
-    absolute_video_path = os.path.abspath(relative_filepath)
+    absolute_video_path = os.path.join(folder_path, filename)
 
     #Save actual video
     video.save(absolute_video_path)
 
 
     #Creating the db record
-    recording = Recording(project_id=1,video_path=absolute_video_path) #Have to add project details later (currently just testing)
+    recording = Recording(project_id=1,user_id=user_id, recording_uuid=unique_id, video_path=absolute_video_path) #Have to add project details later (currently just testing)
 
     #Saving the video file to the db
     db.session.add(recording)
     db.session.commit()
 
     #Returning a success message
-    return jsonify({"message": "Recording successfully uploaded.", "recording_id": recording.id, "video_path": absolute_video_path})
+    return jsonify({"message": "Recording successfully uploaded.", "recording_id": recording.id, "recording_uuid": recording.recording_uuid, "video_path": absolute_video_path})
 
 @routes.route("/create-project", methods=["POST"])
 def create_project():
